@@ -3,14 +3,15 @@ window.onload = function() {
 	if (canvas.getContext){   
 	   var ctx = canvas.getContext('2d');   
 	   setScene();
-	   
 	} 
 
 	else {   
 	   
 	}  
 	var boat,
+		boatPosition,
 		plane,
+		planePosition,
 		score,
 		scoreString,
 		lives,
@@ -27,6 +28,7 @@ window.onload = function() {
 		plane.onload = function(){
 			ctx.drawImage(plane,1100,100);
 		}
+		planePosition = 1100;
 
 		boat = new Image();
 		boat.src = 'assets/boat.png';
@@ -34,6 +36,7 @@ window.onload = function() {
 		boat.onload = function(){
 			ctx.drawImage(boat,650,400);
 		}
+		boatPosition = 650;
 
 		ctx.font = 'Bold 25px Sans-Serif';
 		ctx.fillStyle = '#000';
@@ -46,15 +49,32 @@ window.onload = function() {
 		lives = 3;
 		ctx.fillText(lifeString + lives, 40, 70);
 
-		ctx.fillText('- Hit space bar to start the game -', 450, 300);
+		ctx.fillText('- Hit any key to start the game -', 450, 300);
+		window.addEventListener('keydown',startGame,true);
+	}
 
-		
-		
+	//start game
+	function startGame(){
+		ctx.clearRect(450,200,500,200);
+		startPlaneAnimation();
 
 	}
 
+	function startPlaneAnimation(){
+		setInterval(function(){
+			ctx.clearRect(planePosition,100,plane.width,plane.height);
+			if (planePosition < -100){
+				planePosition = 1200;
+				ctx.drawImage(plane,planePosition,100);
+			} else {
+				planePosition -= 5;
+				ctx.drawImage(plane,planePosition,100);
+			}
+		} ,30);
+	}
+
 	//ctx.clearRect(40,0, 350,50);
-	//start game
+	
 	//handle parachute-boat collision
 	//handle missed parachute
 	//game over
