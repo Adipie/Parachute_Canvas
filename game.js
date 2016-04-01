@@ -49,15 +49,17 @@ window.onload = function() {
 		lives = 3;
 		ctx.fillText(lifeString + lives, 40, 70);
 
-		ctx.fillText('- Hit any key to start the game -', 450, 300);
+		ctx.fillText('- Hit space bar to start the game -', 450, 300);
 		window.addEventListener('keydown',startGame,true);
 	}
 
 	//start game
-	function startGame(){
-		ctx.clearRect(450,200,500,200);
-		startPlaneAnimation();
-
+	function startGame(key){
+		if (key.keyCode === 32){
+			ctx.clearRect(450,200,500,200);
+			startPlaneAnimation();
+			window.addEventListener('keydown',moveBoat,true);
+		}
 	}
 
 	function startPlaneAnimation(){
@@ -71,6 +73,26 @@ window.onload = function() {
 				ctx.drawImage(plane,planePosition,100);
 			}
 		} ,30);
+	}
+
+	function moveBoat(key){
+		switch(key.keyCode){
+			case (37): 
+			if (boatPosition > 0){
+				ctx.clearRect(boatPosition, 400, boat.width, boat.height);
+				boatPosition -= 10;
+				ctx.drawImage(boat,boatPosition, 400);
+			}
+			break;
+			case (39):
+			if (boatPosition < 1150){
+				ctx.clearRect(boatPosition, 400, boat.width, boat.height);
+				boatPosition += 10;
+				ctx.drawImage(boat,boatPosition, 400);
+			}
+			break;
+
+		}
 	}
 
 	//ctx.clearRect(40,0, 350,50);
