@@ -158,16 +158,16 @@ window.onload = function() {
 				ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);
 				if (parachuteYPosition > (boatYPosition + boat.height)) {
 					if (parachuteXPosition > boatPosition && parachuteXPosition < (boatPosition + boat.width)){
+						clearInterval(fallInterval);
 						score += 10;
 						ctx.clearRect(40,0, 350,50);
 						ctx.fillText(scoreString + score, 40,30);
-						clearInterval(fallInterval);
 						ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
 					} else {
+						clearInterval(fallInterval);
 						lives -= 1;
 						ctx.clearRect(40,50, 350,50);
 						ctx.fillText(lifeString + lives, 40,70);
-						clearInterval(fallInterval);
 						ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
 						if (lives === 0){
 							gameOver();
