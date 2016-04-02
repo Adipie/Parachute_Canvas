@@ -18,9 +18,7 @@ window.onload = function() {
 		score,
 		scoreString,
 		lives,
-		lifeString,
-		spaceBarListener;
-
+		lifeString;
 
 	//set game scene - add a boat and a plane.
 	
@@ -51,7 +49,9 @@ window.onload = function() {
 
 	//start game
 	function startGame(key){
+		// start game if user hit space bar
 		if (key.keyCode === 32){
+			// create score and lives tracking
 			ctx.clearRect(40,0, 350,50);
 			ctx.clearRect(40,50, 350,50);
 			scoreString = 'Score: ';
@@ -62,11 +62,15 @@ window.onload = function() {
 			lives = 3;
 			ctx.fillText(lifeString + lives, 40, 70);
 
+			// remove message from screen
 			ctx.clearRect(450,200,500,200);
+
 			// plane starts moving
-			startPlaneAnimation();
+			startPlaneAnimation(); 
+
 			// catch keyboard events to move the boat
 			window.addEventListener('keydown',moveBoat,true);
+
 			// drop parachuters at random interval
 			dropTimer = Math.round(Math.random() * 5000) + 1000;
 			dropInterval = setInterval(dropParachuters,dropTimer); 
@@ -122,6 +126,7 @@ window.onload = function() {
 		}	
 	}
 
+	// parachute animation, update score and lives according to landing point
 	function startParachuteAnimation(parachute, parachuteXPosition ,parachuteYPosition){
 		var fallInterval = setInterval(function(){			
 				ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
@@ -149,7 +154,7 @@ window.onload = function() {
 
 	}
 	
-
+	// stop plane and drop parachutes, present play again
 	function gameOver(){
 		clearInterval(planeInterval);
 		clearInterval(dropInterval);
