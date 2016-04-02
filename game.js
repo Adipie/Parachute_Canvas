@@ -11,8 +11,8 @@ window.onload = function() {
  		boatXStep = 25,
  		planeXstep = 5;
 
-	var backgroundCanvas  = document.getElementById('layer1'),
-		parachuteCanvas = document.getElementById('layer2'),
+	var backgroundCanvas  = document.getElementById('backgroundLayer'),
+		parachuteCanvas = document.getElementById('parachuteLayer'),
 		boat,
 		boatXPosition,
 		plane,
