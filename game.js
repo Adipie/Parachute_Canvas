@@ -1,11 +1,22 @@
-window.onload = function() {	
+window.onload = function() {
+
+	const planeYPosition = 100;
+ 	const planeLeftlimit = -100;
+ 	const planeInitialPosition = 1200;
+ 	const boatYPosition = 400;
+ 	const parachuteInitialYPosition = 140;
+ 	const dropRLimit = 1150;
+ 	const dropLLimit = 10;
+ 	const parachuteYStep = 10;
+ 	const boatXStep = 25;
+ 	const planeXstep = 5;
+
 	var canvas  = document.getElementById('myCanvas');
 	if (canvas.getContext){   
 	   var ctx = canvas.getContext('2d');   
 	   setScene();
 	} 
- 	
- 	const planeYPosition = 100;
+
 	var boat,
 		boatPosition,
 		plane,
@@ -25,18 +36,21 @@ window.onload = function() {
 		plane = new Image();
 		plane.src = 'assets/plane.png';
 
-		plane.onload = function(){
-			ctx.drawImage(plane,1100,planeYPosition);
-		}
-		planePosition = 1100;
+		planePosition = planeInitialPosition;
 
+		plane.onload = function(){
+			ctx.drawImage(plane,planePosition,planeYPosition);
+		}
+		
 		boat = new Image();
 		boat.src = 'assets/boat.png';
 
-		boat.onload = function(){
-			ctx.drawImage(boat,650,400);
-		}
 		boatPosition = 650;
+
+		boat.onload = function(){
+			ctx.drawImage(boat,boatPosition,boatYPosition);
+		}
+		
 
 		ctx.font = 'Bold 25px Sans-Serif';
 		ctx.fillStyle = '#000';
@@ -86,11 +100,11 @@ window.onload = function() {
 	function startPlaneAnimation(){
 		planeInterval = setInterval(function(){
 			ctx.clearRect(planePosition,planeYPosition,plane.width,plane.height);
-			if (planePosition < -100){
-				planePosition = 1200;
+			if (planePosition < planeLeftlimit){
+				planePosition = planeInitialPosition;
 				ctx.drawImage(plane,planePosition,planeYPosition);
 			} else {
-				planePosition -= 5;
+				planePosition -= planeXstep;
 				ctx.drawImage(plane,planePosition,planeYPosition);
 			}
 		} ,30);
@@ -101,16 +115,16 @@ window.onload = function() {
 		switch(key.keyCode){
 			case (37): 
 			if (boatPosition > 0){
-				ctx.clearRect(boatPosition, 400, boat.width, boat.height);
-				boatPosition -= 20;
-				ctx.drawImage(boat,boatPosition, 400);
+				ctx.clearRect(boatPosition, boatYPosition, boat.width, boat.height);
+				boatPosition -= boatXStep;
+				ctx.drawImage(boat,boatPosition, boatYPosition);
 			}
 			break;
 			case (39):
 			if (boatPosition < 1150){
-				ctx.clearRect(boatPosition, 400, boat.width, boat.height);
-				boatPosition += 20;
-				ctx.drawImage(boat,boatPosition, 400);
+				ctx.clearRect(boatPosition, boatYPosition, boat.width, boat.height);
+				boatPosition += boatXStep;
+				ctx.drawImage(boat,boatPosition, boatYPosition);
 			}
 			break;
 
@@ -119,11 +133,11 @@ window.onload = function() {
 
 	// drop parachuters 
 	function dropParachuters(){
-		if (planePosition > 10 && planePosition < 1150){
+		if (planePosition > dropLLimit && planePosition < dropRLimit){
 			var parachute = new Image();
 			parachute.src = 'assets/parachute.png';
 			var parachuteXPosition = planePosition + 50;
-			var parachuteYPosition = 140;
+			var parachuteYPosition = parachuteInitialYPosition;
 			parachute.onload = function(){				
 			ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);	
 			}
@@ -137,13 +151,13 @@ window.onload = function() {
 				ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
 				parachuteYPosition += 10;
 				ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);
-				if (parachuteYPosition > (400 + boat.height)) {
+				if (parachuteYPosition > (boatYPosition + boat.height)) {
 					if (parachuteXPosition > boatPosition && parachuteXPosition < (boatPosition + boat.width)){
 						score += 10;
 						ctx.clearRect(40,0, 350,50);
 						ctx.fillText(scoreString + score, 40,30);
 						clearInterval(fallInterval);
-						ctx.drawImage(boat,boatPosition, 400);
+						ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
 					} else {
 						lives -= 1;
 						ctx.clearRect(40,50, 350,50);
@@ -163,6 +177,7 @@ window.onload = function() {
 	function gameOver(){
 		clearInterval(planeInterval);
 		clearInterval(dropInterval);
+		window.removeEventListener('keydown',moveBoat);
 		ctx.fillText('Game Over! Hit space bar to play again', 450, 300);
 		window.addEventListener('keydown',startGame,false);
 	}
