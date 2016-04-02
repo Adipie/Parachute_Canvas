@@ -11,8 +11,8 @@ window.onload = function() {
  		boatXStep = 25,
  		planeXstep = 5;
 
-	var canvas1  = document.getElementById('layer1'),
-		canvas2 = document.getElementById('layer2'),
+	var backgroundCanvas  = document.getElementById('layer1'),
+		parachuteCanvas = document.getElementById('layer2'),
 		boat,
 		boatXPosition,
 		plane,
@@ -23,11 +23,12 @@ window.onload = function() {
 		scoreString,
 		lives,
 		lifeString,
-		ctx;
+		backgroundCanvasContext,
+		parachuteCanvasContext;
 
-	if (canvas1.getContext && canvas2.getContext){   
-	   ctx = canvas1.getContext('2d');  
-	   layer2Ctx = canvas2.getContext('2d'); 
+	if (backgroundCanvas.getContext && parachuteCanvas.getContext){   
+	   backgroundCanvasContext = backgroundCanvas.getContext('2d');  
+	   parachuteCanvasContext = parachuteCanvas.getContext('2d'); 
 	   setScene();
 	} 
 
@@ -36,14 +37,13 @@ window.onload = function() {
 	//set game scene - add a boat and a plane.
 	
 	function setScene(){
-	
 		plane = new Image();
 		plane.src = 'assets/plane.png';
 
 		planeXPosition = planeInitialPosition;
 
 		plane.onload = function(){
-			ctx.drawImage(plane,planeXPosition,planeYPosition);
+			backgroundCanvasContext.drawImage(plane,planeXPosition,planeYPosition);
 		}
 		
 		boat = new Image();
@@ -52,14 +52,14 @@ window.onload = function() {
 		boatXPosition = 650;
 
 		boat.onload = function(){
-			ctx.drawImage(boat,boatXPosition,boatYPosition);
+			backgroundCanvasContext.drawImage(boat,boatXPosition,boatYPosition);
 		}
 		
 
-		ctx.font = 'Bold 25px Sans-Serif';
-		ctx.fillStyle = '#000';
+		backgroundCanvasContext.font = 'Bold 25px Sans-Serif';
+		backgroundCanvasContext.fillStyle = '#000';
 
-		ctx.fillText('- Hit space bar to start the game -', 450, 300);
+		backgroundCanvasContext.fillText('- Hit space bar to start the game -', 450, 300);
 		window.addEventListener('keydown',startGame,false);
 
 	}
@@ -85,50 +85,52 @@ window.onload = function() {
 	function setupUI(){
 		window.removeEventListener('keydown',startGame);
 		// create score and lives tracking
-		ctx.clearRect(40,0, 350,50);
-		ctx.clearRect(40,50, 350,50);
+		backgroundCanvasContext.clearRect(40,0, 350,50);
+		backgroundCanvasContext.clearRect(40,50, 350,50);
 
 		scoreString = 'Score: ';
 		score = 0;
-		ctx.fillText(scoreString + score, 40,30);
+		backgroundCanvasContext.fillText(scoreString + score, 40,30);
 
 		lifeString = 'Lives: ';
 		lives = 3;
-		ctx.fillText(lifeString + lives, 40, 70);
+		backgroundCanvasContext.fillText(lifeString + lives, 40, 70);
 
 		// remove message from screen
-		ctx.clearRect(450,200,500,200);
+		backgroundCanvasContext.clearRect(450,200,800,200);
 	}
 
 	function planeAnimation(){
-		ctx.clearRect(planeXPosition,planeYPosition,plane.width,plane.height);
+		backgroundCanvasContext.clearRect(planeXPosition,planeYPosition,plane.width,plane.height);
+			// if plane leaves game borders draw it back on the other side
 			if (planeXPosition < planeLeftlimit){
 				planeXPosition = planeInitialPosition;
-				ctx.drawImage(plane,planeXPosition,planeYPosition);
+				backgroundCanvasContext.drawImage(plane,planeXPosition,planeYPosition);
 			} else {
 				planeXPosition -= planeXstep;
-				ctx.drawImage(plane,planeXPosition,planeYPosition);
+				backgroundCanvasContext.drawImage(plane,planeXPosition,planeYPosition);
 			}	
 	}
 
 	// move boat using keyboards
 	function moveBoat(key){
 		switch(key.keyCode){
+			// move left is allowed until hitting screen border
 			case (37): 
 			if (boatXPosition > 0){
-				ctx.clearRect(boatXPosition, boatYPosition, boat.width, boat.height);
+				backgroundCanvasContext.clearRect(boatXPosition, boatYPosition, boat.width, boat.height);
 				boatXPosition -= boatXStep;
-				ctx.drawImage(boat,boatXPosition, boatYPosition);
+				backgroundCanvasContext.drawImage(boat,boatXPosition, boatYPosition);
 			}
 			break;
+			// move right is allowed until hitting screen border
 			case (39):
 			if (boatXPosition < 1150){
-				ctx.clearRect(boatXPosition, boatYPosition, boat.width, boat.height);
+				backgroundCanvasContext.clearRect(boatXPosition, boatYPosition, boat.width, boat.height);
 				boatXPosition += boatXStep;
-				ctx.drawImage(boat,boatXPosition, boatYPosition);
+				backgroundCanvasContext.drawImage(boat,boatXPosition, boatYPosition);
 			}
 			break;
-
 		}
 	}
 
@@ -137,6 +139,7 @@ window.onload = function() {
 		var parachute,
 			parachuteXPosition,
 			parachuteYPosition;
+		// drop parachuters while user still has lives left
 		if (lives > 0 ){
 			dropTimer = Math.round(Math.random() * 3000) + 1000;
 			if (planeXPosition > dropLLimit && planeXPosition < dropRLimit){
@@ -145,11 +148,12 @@ window.onload = function() {
 				parachuteXPosition = planeXPosition + plane.width/2;
 				parachuteYPosition = parachuteInitialYPosition;
 				parachute.onload = function(){				
-					layer2Ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);	
+					parachuteCanvasContext.drawImage(parachute, parachuteXPosition ,parachuteYPosition);	
 				}
 				
 				startParachuteAnimation(parachute, parachuteXPosition ,parachuteYPosition);
 			}	
+			// call the next parachute drop
 			setTimeout(dropParachuters,dropTimer);	
 		}
 	}
@@ -157,17 +161,19 @@ window.onload = function() {
 	// parachute animation, update score and lives according to landing point
 	function startParachuteAnimation(parachute, parachuteXPosition ,parachuteYPosition){
 		var fallInterval = setInterval(function(){			
-				layer2Ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
+				parachuteCanvasContext.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
 				parachuteYPosition += 10;
-				layer2Ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);
+				parachuteCanvasContext.drawImage(parachute, parachuteXPosition ,parachuteYPosition);
 				if (parachuteYPosition > (boatYPosition + boat.height)) {
+					// stop animation
 					clearInterval(fallInterval);
+					// handle boat catches or misses parachute
 					if (parachuteXPosition > boatXPosition && parachuteXPosition < (boatXPosition + boat.width)){
 						updateScore();
-						layer2Ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
-					} else {
+						parachuteCanvasContext.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
+					} else { 
 						updateLives();
-						layer2Ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
+						parachuteCanvasContext.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
 						if (lives === 0){
 							gameOver();
 						}
@@ -181,19 +187,19 @@ window.onload = function() {
 	function gameOver(){
 		clearInterval(planeInterval);
 		window.removeEventListener('keydown',moveBoat);
-		ctx.fillText('Game Over! Hit space bar to play again', 450, 300);
+		backgroundCanvasContext.fillText('Game Over! Hit space bar to play again', 450, 300);
 		window.addEventListener('keydown',startGame,false);
 	}
 
 	function updateScore(){
 		score += 10;
-		ctx.clearRect(40,0, 350,50);
-		ctx.fillText(scoreString + score, 40,30);	
+		backgroundCanvasContext.clearRect(40,0, 350,50);
+		backgroundCanvasContext.fillText(scoreString + score, 40,30);	
 	}
 
 	function updateLives(){
 		lives -= 1;
-		ctx.clearRect(40,50, 350,50);
-		ctx.fillText(lifeString + lives, 40,70);	
+		backgroundCanvasContext.clearRect(40,50, 350,50);
+		backgroundCanvasContext.fillText(lifeString + lives, 40,70);	
 	}
 }
