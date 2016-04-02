@@ -14,10 +14,12 @@ window.onload = function() {
 		planePosition,
 		planeInterval,
 		dropTimer,
+		dropInterval,
 		score,
 		scoreString,
 		lives,
-		lifeString;
+		lifeString,
+		spaceBarListener;
 
 
 	//set game scene - add a boat and a plane.
@@ -43,31 +45,31 @@ window.onload = function() {
 		ctx.font = 'Bold 25px Sans-Serif';
 		ctx.fillStyle = '#000';
 
-		scoreString = 'Score: ';
-		score = 0;
-		ctx.fillText(scoreString + score, 40,30);
-
-		lifeString = 'Lives: ';
-		lives = 3;
-		ctx.fillText(lifeString + lives, 40, 70);
-
 		ctx.fillText('- Hit space bar to start the game -', 450, 300);
-		window.addEventListener('keydown',startGame,false);
+		spaceBarListener = window.addEventListener('keydown',startGame,false);
 	}
 
 	//start game
 	function startGame(key){
 		if (key.keyCode === 32){
+			ctx.clearRect(40,0, 350,50);
+			ctx.clearRect(40,50, 350,50);
+			scoreString = 'Score: ';
 			score = 0;
+			ctx.fillText(scoreString + score, 40,30);
+
+			lifeString = 'Lives: ';
 			lives = 3;
+			ctx.fillText(lifeString + lives, 40, 70);
+
 			ctx.clearRect(450,200,500,200);
 			// plane starts moving
 			startPlaneAnimation();
 			// catch keyboard events to move the boat
 			window.addEventListener('keydown',moveBoat,true);
 			// drop parachuters at random interval
-			dropTimer = Math.round(Math.random() * 5000) + 500;
-			var dropInterval = setInterval(dropParachuters,dropTimer); 
+			dropTimer = Math.round(Math.random() * 5000) + 1000;
+			dropInterval = setInterval(dropParachuters,dropTimer); 
 		}
 	}
 
@@ -116,7 +118,12 @@ window.onload = function() {
 			parachute.onload = function(){				
 			ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);	
 			}
-			setInterval(function(){			
+			startParachuteAnimation(parachute, parachuteXPosition ,parachuteYPosition);
+		}	
+	}
+
+	function startParachuteAnimation(parachute, parachuteXPosition ,parachuteYPosition){
+		var fallInterval = setInterval(function(){			
 				ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
 				parachuteYPosition += 10;
 				ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);
@@ -125,33 +132,28 @@ window.onload = function() {
 						score += 10;
 						ctx.clearRect(40,0, 350,50);
 						ctx.fillText(scoreString + score, 40,30);
-						delete parachute();
+						clearInterval(fallInterval);
+						ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
+					} else {
+						lives -= 1;
+						ctx.clearRect(40,50, 350,50);
+						ctx.fillText(lifeString + lives, 40,70);
+						clearInterval(fallInterval);
+						ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
+						if (lives === 0){
+							gameOver();
+						}
 					}
 				}
 			},30);	
-		}	
-	}
 
-	function handleParachuteLanding(parachute,parachuteXPosition,parachuteYPosition){
-		if (parachuteYPosition > (400 + boat.height)) {
-			console.log(parachuteXPosition);
-			console.log(parachuteYPosition);
-			if (parachuteXPosition > boatPosition && parachuteXPosition < (boatPosition + boat.width)){
-				score += 10;
-				ctx.clearRect(40,0, 350,50);
-				ctx.fillText(scoreString + score, 40,30);
-			}
-		}
 	}
-	/*if (parachuteXPosition > boatPosition && parachuteXPosition < boatPosition+boat.width && parachuteYPosition === 400+boat.height){
-				score += 10;
-				ctx.clearRect(40,0, 350,50);
-				ctx.fillText(scoreString + score, 40,30);
-				clearInterval(parachuteInterval);				
-			}
+	
 
-			*/
-	//handle parachute-boat collision
-	//handle missed parachute
-	//game over
+	function gameOver(){
+		clearInterval(planeInterval);
+		clearInterval(dropInterval);
+		ctx.fillText('Game Over! Hit space bar to play again', 450, 300);
+
+	}
 }
