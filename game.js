@@ -4,10 +4,8 @@ window.onload = function() {
 	   var ctx = canvas.getContext('2d');   
 	   setScene();
 	} 
-
-	else {   
-	   
-	}  
+ 	
+ 	const planeYPosition = 100;
 	var boat,
 		boatPosition,
 		plane,
@@ -28,7 +26,7 @@ window.onload = function() {
 		plane.src = 'assets/plane.png';
 
 		plane.onload = function(){
-			ctx.drawImage(plane,1100,100);
+			ctx.drawImage(plane,1100,planeYPosition);
 		}
 		planePosition = 1100;
 
@@ -44,26 +42,15 @@ window.onload = function() {
 		ctx.fillStyle = '#000';
 
 		ctx.fillText('- Hit space bar to start the game -', 450, 300);
-		spaceBarListener = window.addEventListener('keydown',startGame,false);
+		window.addEventListener('keydown',startGame,false);
+
 	}
 
 	//start game
 	function startGame(key){
 		// start game if user hit space bar
 		if (key.keyCode === 32){
-			// create score and lives tracking
-			ctx.clearRect(40,0, 350,50);
-			ctx.clearRect(40,50, 350,50);
-			scoreString = 'Score: ';
-			score = 0;
-			ctx.fillText(scoreString + score, 40,30);
-
-			lifeString = 'Lives: ';
-			lives = 3;
-			ctx.fillText(lifeString + lives, 40, 70);
-
-			// remove message from screen
-			ctx.clearRect(450,200,500,200);
+			setupUI();
 
 			// plane starts moving
 			startPlaneAnimation(); 
@@ -77,16 +64,34 @@ window.onload = function() {
 		}
 	}
 
+	function setupUI(){
+		window.removeEventListener('keydown',startGame);
+		// create score and lives tracking
+		ctx.clearRect(40,0, 350,50);
+		ctx.clearRect(40,50, 350,50);
+
+		scoreString = 'Score: ';
+		score = 0;
+		ctx.fillText(scoreString + score, 40,30);
+
+		lifeString = 'Lives: ';
+		lives = 3;
+		ctx.fillText(lifeString + lives, 40, 70);
+
+		// remove message from screen
+		ctx.clearRect(450,200,500,200);
+	}
+
 	//  start plane animations
 	function startPlaneAnimation(){
 		planeInterval = setInterval(function(){
-			ctx.clearRect(planePosition,100,plane.width,plane.height);
+			ctx.clearRect(planePosition,planeYPosition,plane.width,plane.height);
 			if (planePosition < -100){
 				planePosition = 1200;
-				ctx.drawImage(plane,planePosition,100);
+				ctx.drawImage(plane,planePosition,planeYPosition);
 			} else {
 				planePosition -= 5;
-				ctx.drawImage(plane,planePosition,100);
+				ctx.drawImage(plane,planePosition,planeYPosition);
 			}
 		} ,30);
 	}
@@ -138,7 +143,7 @@ window.onload = function() {
 						ctx.clearRect(40,0, 350,50);
 						ctx.fillText(scoreString + score, 40,30);
 						clearInterval(fallInterval);
-						ctx.clearRect(parachuteXPosition,parachuteYPosition,parachute.width,parachute.height);
+						ctx.drawImage(boat,boatPosition, 400);
 					} else {
 						lives -= 1;
 						ctx.clearRect(40,50, 350,50);
@@ -159,6 +164,6 @@ window.onload = function() {
 		clearInterval(planeInterval);
 		clearInterval(dropInterval);
 		ctx.fillText('Game Over! Hit space bar to play again', 450, 300);
-
+		window.addEventListener('keydown',startGame,false);
 	}
 }
