@@ -12,6 +12,7 @@ window.onload = function() {
  	const planeXstep = 5;
 
 	var canvas  = document.getElementById('myCanvas');
+
 	if (canvas.getContext){   
 	   var ctx = canvas.getContext('2d');   
 	   setScene();
@@ -64,8 +65,9 @@ window.onload = function() {
 	function startGame(key){
 		// start game if user hit space bar
 		if (key.keyCode === 32){
+			
 			setupUI();
-
+			
 			// plane starts moving
 			startPlaneAnimation(); 
 
@@ -73,8 +75,7 @@ window.onload = function() {
 			window.addEventListener('keydown',moveBoat,true);
 
 			// drop parachuters at random interval
-			dropTimer = Math.round(Math.random() * 5000) + 1000;
-			dropInterval = setInterval(dropParachuters,dropTimer); 
+			dropParachuters(); 
 		}
 	}
 
@@ -133,16 +134,20 @@ window.onload = function() {
 
 	// drop parachuters 
 	function dropParachuters(){
-		if (planePosition > dropLLimit && planePosition < dropRLimit){
-			var parachute = new Image();
-			parachute.src = 'assets/parachute.png';
-			var parachuteXPosition = planePosition + 50;
-			var parachuteYPosition = parachuteInitialYPosition;
-			parachute.onload = function(){				
-			ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);	
-			}
-			startParachuteAnimation(parachute, parachuteXPosition ,parachuteYPosition);
-		}	
+		if (lives > 0 ){
+			dropTimer = Math.round(Math.random() * 3000) + 1000;
+			if (planePosition > dropLLimit && planePosition < dropRLimit){
+				var parachute = new Image();
+				parachute.src = 'assets/parachute.png';
+				var parachuteXPosition = planePosition + plane.width/2;
+				var parachuteYPosition = parachuteInitialYPosition;
+				parachute.onload = function(){				
+					ctx.drawImage(parachute, parachuteXPosition ,parachuteYPosition);	
+					}
+				startParachuteAnimation(parachute, parachuteXPosition ,parachuteYPosition);
+			}	
+			setTimeout(dropParachuters,dropTimer);	
+		}
 	}
 
 	// parachute animation, update score and lives according to landing point
@@ -176,7 +181,6 @@ window.onload = function() {
 	// stop plane and drop parachutes, present play again
 	function gameOver(){
 		clearInterval(planeInterval);
-		clearInterval(dropInterval);
 		window.removeEventListener('keydown',moveBoat);
 		ctx.fillText('Game Over! Hit space bar to play again', 450, 300);
 		window.addEventListener('keydown',startGame,false);
