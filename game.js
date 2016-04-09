@@ -95,8 +95,13 @@ window.onload = function() {
 		// move boat
 		window.addEventListener('keydown',moveBoat,false);
 
-		setTimeout(dropParachute, Math.round(Math.random() * 100000) + 2000);
-		
+		// decide if to drop parachute or no
+		// droping the parachute happens after a random timout
+		if ( Math.floor(Math.random() * 50) > 45) {
+			setTimeout(dropParachute, Math.round(Math.random() * 50000) );
+		}
+
+		// For eache parachute on screen update it's position and check for landing position
 		for (i=0 ; i < parachuteList.length ; i++){
 			moveParachute(parachuteList[i]);
 			checkParachuteLanding(parachuteList[i]);
@@ -104,16 +109,22 @@ window.onload = function() {
 	}
 
 	function movePlane(){
+		// clear last plane appearance
 		clearInstance(plane);
+		//update plane position according to current position
 		if (plane.xPosition < planeLeftlimit){
 			plane.xPosition = planeInitialX;
 		} else {
 			plane.xPosition -= plane.velocity;
 		}
+		//redraw plane
 		drawInstance(plane);
 	}
 
 	// move boat using keyboards
+	//clear last boat appearance
+	// update boat position according to keystroke
+	// redraw boat
 	function moveBoat(key){
 		switch(key.keyCode){
 			// move left is allowed until hitting screen border
@@ -135,16 +146,22 @@ window.onload = function() {
 		}
 	}
 
+	// move parachute
+	//clear last parachute appearance
+	// update parachute position according to gravity
+	// redraw parachute
 	function moveParachute(parachute){
 		clearParachute(parachute);
 		parachute.yPosition += parachute.gravity;
 		drawParachute(parachute);
 	}
 
+	// drop parachute from plane
+	//create parachute and add it to parachute list
 	function dropParachute(){
-		var parachute = {xPosition: plane.xPosition + plane.icon.width/2, yPosition: plane.yPosition + plane.icon.height/2 , gravity: gravity , icon: new Image()};
-		parachute.icon.src = 'assets/parachute.png';
 		if (plane.xPosition > gameLeftBound && plane.xPosition < gameRightBound){
+			var parachute = {xPosition: plane.xPosition + plane.icon.width/2, yPosition: plane.yPosition + plane.icon.height/2 , gravity: gravity , icon: new Image()};
+			parachute.icon.src = 'assets/parachute.png';
 			parachute.icon.onload = function(){
 				drawParachute(parachute);
 				parachuteList.push(parachute);
@@ -152,24 +169,32 @@ window.onload = function() {
 		}
 	}
 
+	// check parachute landing
+	// check vertical and horizontal position to check if parachute hits boat or falls in the water
+	// remove parachute from parachute list if landed
+	// update score / lives according to landing
+	// call game over if lives = 0
 	function checkParachuteLanding(parachute){
 		if (parachute.yPosition > boat.yPosition - boat.icon.height/2){
 			if (parachute.xPosition > boat.xPosition && parachute.xPosition < boat.xPosition + boat.icon.width){
 				updateScore();
 				parachuteList.splice(parachuteList.indexOf(parachute),1);
 				clearParachute(parachute);
-			} else {
-				updateLives();
-				parachuteList.splice(parachuteList.indexOf(parachute),1);
-				clearParachute(parachute);
-				if (lives === 0){
-					gameOver();
-				} 
+			} else { 
+				if ( parachute.yPosition > boat.yPosition + boat.icon.height){
+					updateLives();
+					parachuteList.splice(parachuteList.indexOf(parachute),1);
+					clearParachute(parachute);
+					if (lives === 0){
+						gameOver();
+					} 
+				}
 			}
 
 		}
 	}
 
+	// Stop all animations
 	function gameOver(){
 		clearInterval(updateInterval);
 		window.removeEventListener('keydown',moveBoat);
@@ -189,6 +214,7 @@ window.onload = function() {
 		backgroundCanvasContext.fillText(lifeString + lives, 40,70);	
 	}
 
+	
 	function clearInstance(instance){
 		backgroundCanvasContext.clearRect(instance.xPosition, instance.yPosition, instance.icon.width, instance.icon.height);	
 	}
