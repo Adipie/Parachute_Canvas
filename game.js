@@ -31,7 +31,7 @@ window.onload = function() {
 	   backgroundCanvasContext.font = 'Bold 25px Sans-Serif';
 	   backgroundCanvasContext.fillStyle = '#000'; 
 	   loadGame();
-
+	   window.addEventListener('keydown',startGame,false);
 	} 
 
 	
@@ -53,7 +53,6 @@ window.onload = function() {
 		}
 
 		backgroundCanvasContext.fillText('- Hit space bar to start the game -', 450, 300);
-		window.addEventListener('keydown',startGame,false);
 	}
 	
 
@@ -214,7 +213,7 @@ window.onload = function() {
 		backgroundCanvasContext.fillText(lifeString + lives, 40,70);	
 	}
 
-	
+
 	function clearInstance(instance){
 		backgroundCanvasContext.clearRect(instance.xPosition, instance.yPosition, instance.icon.width, instance.icon.height);	
 	}
